@@ -1,6 +1,14 @@
 \documentclass{article}
-\usepackage{amsmath,  amsthm,  amssymb,  bm,  graphicx, mathrsfs, ctex, caption, subfigure, multicol, multienum, color}
-\usepackage[hidelinks]{hyperref}
+\usepackage{amsmath,  amsthm,  amssymb,  bm,  graphicx, mathrsfs, ctex, caption, subfigure, multicol, multienum, color, float}
+\usepackage[unicode=true,pdfusetitle,
+   bookmarks=true, 
+   bookmarksnumbered=false, 
+   bookmarksopen=false,
+   breaklinks=false, 
+   pdfborder={0 0 1}, 
+   backref=false, 
+   colorlinks=false,
+   hidelinks]{hyperref}
 \usepackage{anyfontsize}
 \usepackage{xeCJK}
 \usepackage{geometry}
@@ -208,7 +216,7 @@
 \setcounter{page}{1}
 \setcounter{section}{0}
 
-\section{双层问题}
+\section{对所给双层问题中部分非线性约束的线性化}
 仅提取上下层模型中的部分约束条件, 其余约束省略.
 \subsection{上层模型}
 \subsubsection{上层目标函数}
@@ -384,9 +392,9 @@
             }
             \item {储能电站的运行策略约束({\color{red}可线性化}):
                 \begin{align}
-                    \begin{cases}0\leq p_B^{dc}\left(t\right)\leq\left(1-x(t)\right)\cdot C_B\\0\leq p_B^{ch}\left(t\right)\leq x(t)\cdot C_B&\end{cases},\forall t\in\Theta \label{eq:charge_power_range}
+                    \begin{cases}0\leq p_B^{dc}\left(t\right)\leq\left(1-x(t)\right)\cdot C_B\\0\leq p_B^{ch}\left(t\right)\leq x(t)\cdot C_B&\end{cases},\forall t\in\Theta \label{eq:charge_power_range2}
                 \end{align}
-                式(\ref{eq:charge_power_range})线性化后的约束条件为:
+                式(\ref{eq:charge_power_range2})线性化后的约束条件为:
                 \begin{align}
                     \begin{cases}
                         0\leq p_B^{dc}\left(t\right)\leq\left(1-x(t)\right)\cdot C_B^{max}\\
@@ -400,21 +408,130 @@
     }
 \end{enumerate}
 
+\section{对所给双层问题的讨论}
 \subsection{双层规划的一般形式}
-双层规划问题的一般形式如下:
+双层规划问题的一般形式如下, 即一个优化问题被另一个优化问题所约束:
 \begin{align}
-    \min\quad & f(x,y^{*})&  \\
+    \min_{x\in X}\quad & f_1(x,y^{*})&  \\
     \mathrm{s.t.}\quad &g_{1}(x,y^{*})\leq0&  \\
     &h_{1}(x,y^{*})=0& \\
-    &y^*\in\mathop{\arg\min}\{f_2(x,y) \\
+    &y^*\in\mathop{\arg\min_{y\in Y}}\{f_2(x,y) \\
     &\qquad~\mathrm{s.t.}~~~~\quad g_{2}(x,y)\leq0\\
     &~~~~~~~~~~~~~~~~~~h_2(x,y)=0\}
 \end{align}
+% \begin{align}
+%     \min_{x\in X,y}\quad&F(x,y)\\
+%     \mathrm{s.t.}\quad&G(x,y)\geq0,\\
+%     &y\in S(x),
+% \end{align}
+% 其中, $S(x)$是下面以$x$为参数的优化问题的最优解集。
+% \begin{align}
+%     \min_{y\in Y}\quad&f(x,y)\\
+%     \mathrm{s.t.}\quad&g(x,y)\geq0.
+% \end{align}
+一般来说下层的决策会影响上层的决策结果。以下为双层规划的一般解法示意图:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{./pic/bi-level-scheme.png}
+    \caption{双层规划示意图}
+    \label{fig:two_level_programming}
+\end{figure}
+\subsection{文档所给双层问题的矩阵表示}
+\begin{enumerate}
+    \item {上层问题:
+        \begin{align}
+            \min\limits_{\boldsymbol{x}\in\boldsymbol{X}}\quad & \boldsymbol{g}^T\boldsymbol{x}  \label{UL_obj} \\
+            \mathrm{s.t.}\quad &\boldsymbol{G(x)}\geq \boldsymbol{d}  \label{UL_con1} 
+        \end{align}
+    }
+    \item {下层问题:
+        \begin{align}
+            \min\limits_{\boldsymbol{y}\in\boldsymbol{F(x)}}\quad & \boldsymbol{h}^T\boldsymbol{y} \\
+            \mathrm{s.t.}\quad &\boldsymbol{Bx}+\boldsymbol{Cy}\geq \boldsymbol{e}
+        \end{align}
+        其中, $\boldsymbol{F(x)}$为下层可行域.
+    }
+\end{enumerate}
 
-\section{证明此问题与单层问题有相同的最优值}
+对于这个双层问题, 根据双层规划的一般解法, 可以假设上层问题传入下层问题的$\boldsymbol{x}=\boldsymbol{\hat{x}}$, 不妨设$\boldsymbol{\hat{x}}$传入下层问题后下层问题是可行的。
+
+$\boldsymbol{\hat{x}}$传入下层问题后可得如下形式的下层问题:
+\begin{align}
+    \min\limits_{\boldsymbol{y}\in\boldsymbol{F(\hat{x})}}\quad & \boldsymbol{h}^T\boldsymbol{y} \\
+    \mathrm{s.t.}\quad &\boldsymbol{B\hat{x}}+\boldsymbol{Cy}\geq \boldsymbol{e}
+\end{align}
+假设此问题的最优解为$\boldsymbol{y^*}$, 将$\boldsymbol{y^*}$传回上层问题, 结合$\boldsymbol{\hat{x}}$, 就获取到了一个上层问题的可行解$(\boldsymbol{\hat{x}},\boldsymbol{y^*})$, 通过这种方式就可以获取到上层问题的所有可行解, 从而可以求解上层问题.
+
+但\eqref{UL_obj}所表示的上层问题的目标函数中并没有$\boldsymbol{y}$, 因此上层问题的最优值与$\boldsymbol{y}$没有关系, 所以这个双层问题可能并不能完成本来的目的。
+
+故而考虑, 将下层问题的目标函数加入到上层问题的目标函数中, 从而得到如下形式新的双层问题:
+\begin{enumerate}
+    \item {上层问题:
+        \begin{align}
+            \min\limits_{\boldsymbol{x}\in\boldsymbol{X}}\quad & \boldsymbol{g}^T\boldsymbol{x}+\boldsymbol{h}^T\boldsymbol{y}  \label{UL_obj2} \\
+            \mathrm{s.t.}\quad &\boldsymbol{G(x)}\geq \boldsymbol{d}  \label{UL_con12} \\
+        \end{align}
+    }
+    \item {下层问题:
+        \begin{align}
+            \min\limits_{\boldsymbol{y}\in\boldsymbol{F(x)}}\quad & \boldsymbol{h}^T\boldsymbol{y} \\
+            \mathrm{s.t.}\quad &\boldsymbol{Bx}+\boldsymbol{Cy}\geq \boldsymbol{e}
+        \end{align}
+        其中, $\boldsymbol{F(x)}$为下层可行域.
+    }
+\end{enumerate}
+
+\subsection{单层问题}
+以下为所给文档中给出的单层问题:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./pic/单层问题.png}
+    \caption{单层问题}
+    \label{fig:single_level_programming}
+\end{figure}
+为了表述简洁这里将下层问题中的变量统一使用$\boldsymbol{y}$表示, 不特意区分01变量和连续变量.
+\begin{align}
+    \min\limits_{\boldsymbol{x,y}\in\boldsymbol{F(x,y)}}\quad & \boldsymbol{g}^T\boldsymbol{x}+\boldsymbol{h}^T\boldsymbol{y}\\
+    \mathrm{s.t.}\quad &\boldsymbol{G(x)}\geq \boldsymbol{d} \\
+    &\boldsymbol{Bx}+\boldsymbol{Cy}\geq \boldsymbol{e}
+\end{align}
+其中, $\boldsymbol{F(x,y)}=\{(\boldsymbol{x,y})|\boldsymbol{x}\in\boldsymbol{X},\boldsymbol{y}\in\boldsymbol{F(x)}\}$.
+
+\subsection{证明新的双层问题与单层问题的最优值相同}
+要证:
+\begin{align}
+    \min\limits_{\boldsymbol{x}\in\boldsymbol{X}}\min\limits_{\boldsymbol{y}\in\boldsymbol{F(x)}} (\boldsymbol{g}^T\boldsymbol{x}+ \boldsymbol{h}^T\boldsymbol{y})=\min\limits_{\boldsymbol{x,y}\in\boldsymbol{F(x,y)}}(\boldsymbol{g}^T\boldsymbol{x}+\boldsymbol{h}^T\boldsymbol{y}) \label{eq:proof}
+\end{align}
+\eqref{eq:proof}可以表示为:
+\begin{align}
+    \min\limits_{\boldsymbol{x}\in\boldsymbol{X}}\min\limits_{\boldsymbol{y}\in\boldsymbol{F(x)}} f(\boldsymbol{x,y})=\min\limits_{\boldsymbol{x,y}\in\boldsymbol{F(x,y)}} f(\boldsymbol{x,y})
+\end{align}
+\begin{enumerate}
+    \item 假设$(\boldsymbol{x^*,y^*})$为$LHS$的最优解, 同时$(\boldsymbol{x^*,y^*})$也是$RHS$的可行解, 则有:
+    \begin{align}
+        LHS\leq RHS \label{eq:proof1}
+    \end{align}
+    \item 假设$(\boldsymbol{x^*,y^*})$为$RHS$的最优解, 那么$\min\limits_{\boldsymbol{y}\in F(\boldsymbol{x^*})}f(\boldsymbol{x^*,y})$有最优解$(\boldsymbol{x^*,\widetilde{y}})$, 且有:
+    \begin{align}
+        f(\boldsymbol{x^*,\widetilde{y}})\geq f(\boldsymbol{x^*,y^*})
+    \end{align}
+    所以:
+    \begin{align}
+        LHS\geq RHS \label{eq:proof2}
+    \end{align}
+\end{enumerate}
+综上, 由\eqref{eq:proof1}和\eqref{eq:proof2}可得:
+\begin{align}
+    LHS=RHS
+\end{align}
+
+
+
 
 \section{文章中的Benders分解存在的问题}
+文章中只有可行性恢复子问题, 保证了可行性, 但没有保证最优性。
 
-\section{对模型中非线性约束的处理}
+\section{对模型中\texorpdfstring{$E_B=N_B\cdot C_B$}.约束的处理}
+初步可以使用枚举的方法进行测试, 通过求解多个MILP问题实现, 即分别令$N_B=\underline{N}_B,\underline{N}_B+1,\cdots$, 求解对应的MILP问题, 并统计各个问题的目标函数值, 选取最优的目标函数值对应的$N_B$值作为最终的$N_B$值.
 
 \end{document}
