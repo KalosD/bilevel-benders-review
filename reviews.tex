@@ -1,11 +1,10 @@
 \documentclass{article}
-\usepackage{amsmath,  amsthm,  amssymb,  bm,  graphicx, mathrsfs, ctex, caption, subfigure, multicol, multienum, bm}
+\usepackage{amsmath,  amsthm,  amssymb,  bm,  graphicx, mathrsfs, ctex, caption, subfigure, multicol, multienum, color}
 \usepackage[hidelinks]{hyperref}
 \usepackage{anyfontsize}
 \usepackage{xeCJK}
-
 \usepackage{geometry}
-\geometry{a5paper, scale=0.8}
+\geometry{a4paper, scale=0.8}
 
 \newtheorem*{note}{注}
 \newtheorem*{solution}{解}
@@ -13,7 +12,7 @@
 \newtheorem{definition}[theorem]{定义}
 \newtheorem{lemma}[theorem]{引理}
 \newtheorem{corollary}[theorem]{推论}
-\newtheorem{example}[theorem]{例}
+\newtheorem{example}[theorem]{例} 
 \newtheorem{proposition}[theorem]{命题}
 
 
@@ -22,19 +21,6 @@
 \begin{center}
     \huge\bf review
 \end{center}
-
-\section{Preliminary}
-\begin{enumerate}
-    \item Sets and Indices:
-    \begin{itemize}
-        \item 
-        \item 
-    \end{itemize}
-    \item Variables:
-
-    \item Parameters:
-
-\end{enumerate}
 
 \section{Benders Decomposition}
 \subsection{Unified Primal Subproblems for Benders Decomposition}
@@ -218,8 +204,12 @@
 \end{figure}
 
 
-\section{双层问题:小规模模型提取}
-仅提取上下层模型中相耦合的变量所涉及到的约束条件, 其余约束省略.
+\clearpage
+\setcounter{page}{1}
+\setcounter{section}{0}
+
+\section{双层问题}
+仅提取上下层模型中的部分约束条件, 其余约束省略.
 \subsection{上层模型}
 \subsubsection{上层目标函数}
 以多能互补系统等年值下的系统总投资最小为优化目标:
@@ -246,15 +236,17 @@
 
 
 \subsubsection{上层约束条件}
-1. 界约束
-\begin{align}
-    \begin{cases}0\le C_W\le C_W^{\max}\\0\le C_V\le C_V^{\max}\\0\le C_B\le C_B^{\max}\\0\le E_B\le E_B^{\max}\\0\le C_S\le C_S^{\max}\\0\le E_S\le E_S^{\max}\end{cases}
-\end{align}
-
-2. 储能时长约束
-\begin{align}
-    \begin{cases}E_B=N_B\cdot C_B\\N_B\geq\underline{N}_B\end{cases}
-\end{align}
+\begin{enumerate}
+    \item 界约束
+    \begin{align}
+        \begin{cases}0\le C_W\le C_W^{\max}\\0\le C_V\le C_V^{\max}\\0\le C_B\le C_B^{\max}\\0\le E_B\le E_B^{\max}\\0\le C_S\le C_S^{\max}\\0\le E_S\le E_S^{\max}\end{cases}
+    \end{align}
+    \item {\color{red}储能时长约束}
+    \begin{align}
+        \begin{cases}E_B=N_B\cdot C_B\\N_B\geq\underline{N}_B\end{cases}
+    \end{align}
+    式中, $N_B$表示储能电站的储能时长, 为整数优化变量.
+\end{enumerate}
 
 \subsection{下层模型}
 \subsubsection{下层目标函数}
@@ -262,8 +254,167 @@
 \begin{equation}
     \max I
 \end{equation}
+系统年综合收益为售电收益, 计算方式如下:
+\begin{align}
+    \begin{cases}
+        I=I_E\\
+        I_{E}=\lambda_{E}\cdot\sum_{t=1}^{T}p_{L}(t){\cdot}\Delta t
+    \end{cases}
+\end{align}
+
 \subsubsection{下层约束条件}
+下层模型考虑的约束条件包括系统安全性约束和清洁性约束，以及各类装置的运行约束, 现选取部分约束条件进行分析.
 
+\begin{enumerate}
+    \item {外送通道容量约束:
+        \begin{align}
+            p_L(t)&=p_W(t)+p_V(t)+p_B(t)+p_S(t),\forall t\\p_L^{\min}&\le p_L(t)\le p_L^{\max},\forall t
+        \end{align}
+    }
+    \item {风电/光伏运行约束:
+        \begin{enumerate}
+            \item {发电功率范围约束:
+                \begin{align}
+                    \begin{cases}0\leq p_W(t)\leq\delta_W(t)\cdot C_W\\0\leq p_V(t)\leq\delta_V(t)\cdot C_V\end{cases},\forall t
+                \end{align}
+            }
+            \item {利用率约束:
+                \begin{align}
+                    \sum_{t\in\Theta}\left(p_W(t)+p_V(t)\right)\geq(1-\varepsilon)\cdot\sum_{t\in\Theta}\left(\delta_W(t)C_W+\delta_V(t)C_V\right)
+                \end{align}
+            }
+        \end{enumerate}
+    }
+    \item {储能电站运行约束:
+        \begin{enumerate}
+            \item {充电功率范围约束({\color{red}可线性化}):
+                \begin{align}
+                    & p_{B}(t)=p_{B}^{dc}(t)-p_{B}^{ch}(t) \\
+                    & \begin{cases}0\leq p_B^{dc}(t)\leq u_B^{dc}(t)\cdot C_B\\0\leq p_B^{ch}(t)\leq u_B^{ch}(t)\cdot C_B\end{cases},\forall t \label{eq:charge_power_range} 
+                \end{align}
+                式(\ref{eq:charge_power_range})线性化后的约束条件为:
+                \begin{align}
+                    \begin{cases}
+                        0\leq p_B^{dc}(t)\leq u_B^{dc}(t)\cdot C_B^{max}\\
+                        0\leq p_B^{ch}(t)\leq u_B^{ch}(t)\cdot C_B^{max}\\
+                        0\leq p_B^{dc}(t)\leq C_B\\
+                        0\leq p_B^{ch}(t)\leq C_B
+                    \end{cases},\forall t
+                \end{align}
+            }
+            \item {充放电状态约束:
+                \begin{align}
+                    u_B^{dc}(t)+u_B^{ch}(t)\leq1,\forall t
+                \end{align}
+            }
+            \item {荷电状态约束:
+                \begin{align}
+                    e_B(t+1){=}e_B(t){+}\gamma_B^{ch}p_B^{ch}(t){-}p_B^{dc}(t)/\gamma_B^{dc},\forall t
+                \end{align}
+            }
+            \item {储能容量范围约束:
+                \begin{align}
+                    0\leq e_B(t)\leq E_B,\forall t
+                \end{align}
+            }
+        \end{enumerate}
+    }
+    \item {光热电站及储热系统运行约束:
+        \begin{enumerate}
+            \item {集热器热量平衡约束:
+                \begin{align}
+                    h_{s}^{in}(t)=h_{s}^{cr}(t)+h_{s}^{ch}(t),\forall t
+                \end{align}
+            }
+            \item {储热/放热功率范围约束:
+                \begin{align}
+                    \begin{cases}0\le h_S^{ch}(t)\le\bar{h}_S^{ch}\\0\le h_S^{dc}(t)\le\bar{h}_S^{dc}\end{cases},\forall t
+                \end{align}
+            }
+            \item {热-电功率转化约束:
+                \begin{align}
+                    p_s(t)=\eta_s\cdot h_s(t),\forall t
+                \end{align}
+            }
+            \item {发电功率范围约束({\color{red}可线性化}):
+                \begin{align}
+                    u_{S}(t)\cdot\delta_{S}^{\min}\cdot C_{S}\leq p_{S}(t)\leq u_{S}(t)\cdot\delta_{S}^{\max}\cdot C_{S},\forall t \label{eq:power_range}
+                \end{align}
+                式(\ref{eq:power_range})线性化后的约束条件为:
+                \begin{align}
+                    \begin{cases}
+                        u_{S}(t)\cdot\delta_{S}^{\min}\cdot C_{S}^{min}\leq p_{S}(t)\leq u_{S}(t)\cdot\delta_{S}^{\max}\cdot C_{S}^{max}\\
+                        \delta_{S}^{\min}\cdot C_{S} - M \cdot (1-u_{S}(t)) \leq p_{S}(t)\leq \delta_{S}^{\max}\cdot C_{S}
+                    \end{cases},\forall t
+                \end{align}
+            }
+            \item {发电热量平衡约束:
+                \begin{align}
+                    h_S^{dc}(t)=h_S(t)+v_S(t)\cdot h_S^g,\forall t
+                \end{align}
+            }
+            \item {运行状态逻辑约束:
+                \begin{align}
+                    \begin{cases}u_S(t)-u_S(t-1)-\nu_S(t)\leq0\\u_S(t)-\nu_S(t)\geq0\end{cases},\forall t
+                \end{align}
+            }
+            \item {储热装置容量范围约束:
+                \begin{align}
+                    0\leq e_S(t)\leq E_S,\forall t
+                \end{align}
+            }
+            \item {储热装置热量平衡约束:
+                \begin{align}
+                    e_S(t+1)=e_S(t)+\gamma_S^{ch}h_S^{ch}(t)-h_S^{dc}(t)/\gamma_S^{dc}-h_S^{l}(t),\forall t
+                \end{align}
+            }
+            \item {储热装置外送能力范围约束:
+                \begin{align}
+                    0\leq h_S^l(t)\leq\bar{h}_S^l,\forall t
+                \end{align}
+            }
+        \end{enumerate}
+    }
+    \item {储能装置与风电/光伏弃电状态的耦合运行策略和约束:
+        \begin{enumerate}
+            \item {风电/光伏弃电状态约束:
+                \begin{align}
+                    \left(1-x(t)\right)\cdot\left(\overline{p}_W(t)+\overline{p}_V(t)\right)\leq p_W(t)+p_V(t)\leq\left(2-x(t)\right)\cdot\left(\overline{p}_W(t)+\overline{p}_V(t)\right)-m,\forall t\in\Theta
+                \end{align}
+            }
+            \item {储能电站的运行策略约束({\color{red}可线性化}):
+                \begin{align}
+                    \begin{cases}0\leq p_B^{dc}\left(t\right)\leq\left(1-x(t)\right)\cdot C_B\\0\leq p_B^{ch}\left(t\right)\leq x(t)\cdot C_B&\end{cases},\forall t\in\Theta \label{eq:charge_power_range}
+                \end{align}
+                式(\ref{eq:charge_power_range})线性化后的约束条件为:
+                \begin{align}
+                    \begin{cases}
+                        0\leq p_B^{dc}\left(t\right)\leq\left(1-x(t)\right)\cdot C_B^{max}\\
+                        0\leq p_B^{ch}\left(t\right)\leq x(t)\cdot C_B^{max}\\
+                        0\leq p_B^{dc}\left(t\right)\leq C_B\\
+                        0\leq p_B^{ch}\left(t\right)\leq C_B
+                    \end{cases},\forall t\in\Theta
+                \end{align}
+            }
+        \end{enumerate}
+    }
+\end{enumerate}
 
+\subsection{双层规划的一般形式}
+双层规划问题的一般形式如下:
+\begin{align}
+    \min\quad & f(x,y^{*})&  \\
+    \mathrm{s.t.}\quad &g_{1}(x,y^{*})\leq0&  \\
+    &h_{1}(x,y^{*})=0& \\
+    &y^*\in\mathop{\arg\min}\{f_2(x,y) \\
+    &\qquad~\mathrm{s.t.}~~~~\quad g_{2}(x,y)\leq0\\
+    &~~~~~~~~~~~~~~~~~~h_2(x,y)=0\}
+\end{align}
+
+\section{证明此问题与单层问题有相同的最优值}
+
+\section{文章中的Benders分解存在的问题}
+
+\section{对模型中非线性约束的处理}
 
 \end{document}
