@@ -23,12 +23,14 @@
 \newtheorem{example}[theorem]{例} 
 \newtheorem{proposition}[theorem]{命题}
 
+\author{杜洪博}
+\title{双层优化模型及Benders分解算法讨论分析 \\ {\small 北京邮电大学 优化组}}
+\date{\today}
+
 
 \begin{document}
 
-\begin{center}
-    \huge\bf review
-\end{center}
+\maketitle
 
 \section{Benders Decomposition}
 \subsection{Unified Primal Subproblems for Benders Decomposition}
@@ -216,8 +218,7 @@
 \setcounter{page}{1}
 \setcounter{section}{0}
 
-\section{对所给双层问题中部分非线性约束的线性化}
-仅提取上下层模型中的部分约束条件, 其余约束省略.
+\section{文档所给的双层问题及对部分非线性约束的线性化}
 \subsection{上层模型}
 \subsubsection{上层目标函数}
 以多能互补系统等年值下的系统总投资最小为优化目标:
@@ -385,9 +386,16 @@
     }
     \item {储能装置与风电/光伏弃电状态的耦合运行策略和约束:
         \begin{enumerate}
-            \item {风电/光伏弃电状态约束:
+            \item {风电/光伏弃电状态约束({\color{red}可线性化}):
                 \begin{align}
-                    \left(1-x(t)\right)\cdot\left(\overline{p}_W(t)+\overline{p}_V(t)\right)\leq p_W(t)+p_V(t)\leq\left(2-x(t)\right)\cdot\left(\overline{p}_W(t)+\overline{p}_V(t)\right)-m,\forall t\in\Theta
+                    \left(1-x(t)\right)\cdot\left(\overline{p}_W(t)+\overline{p}_V(t)\right)\leq p_W(t)+p_V(t)\leq\left(2-x(t)\right)\cdot\left(\overline{p}_W(t)+\overline{p}_V(t)\right)-m,\forall t\in\Theta \label{eq:abandon_power_range}
+                \end{align}
+                式(\ref{eq:abandon_power_range})线性化后的约束条件为:
+                \begin{align}
+                    \begin{cases}
+                        \left(\overline{p}_W(t)+\overline{p}_V(t)\right)-x(t)\cdot M \leq p_W(t)+p_V(t)\leq 2\cdot\left(\overline{p}_W(t)+\overline{p}_V(t)\right)-m\\
+                        0 \leq p_W(t)+p_V(t)\leq\left(\overline{p}_W(t)+\overline{p}_V(t)\right)-m+(1-x(t))\cdot M
+                    \end{cases},\forall t\in\Theta
                 \end{align}
             }
             \item {储能电站的运行策略约束({\color{red}可线性化}):
@@ -469,8 +477,9 @@ $\boldsymbol{\hat{x}}$传入下层问题后可得如下形式的下层问题:
     \item {上层问题:
         \begin{align}
             \min\limits_{\boldsymbol{x}\in\boldsymbol{X}}\quad & \boldsymbol{g}^T\boldsymbol{x}+\boldsymbol{h}^T\boldsymbol{y}  \label{UL_obj2} \\
-            \mathrm{s.t.}\quad &\boldsymbol{G(x)}\geq \boldsymbol{d}  \label{UL_con12} \\
+            \mathrm{s.t.}\quad &\boldsymbol{G(x)}\geq \boldsymbol{d}  \label{UL_con12}
         \end{align}
+        其中, $\boldsymbol{y}$取值范围为下层问题的最优解集.
     }
     \item {下层问题:
         \begin{align}
@@ -504,7 +513,7 @@ $\boldsymbol{\hat{x}}$传入下层问题后可得如下形式的下层问题:
 \end{align}
 \eqref{eq:proof}可以表示为:
 \begin{align}
-    \min\limits_{\boldsymbol{x}\in\boldsymbol{X}}\min\limits_{\boldsymbol{y}\in\boldsymbol{F(x)}} f(\boldsymbol{x,y})=\min\limits_{\boldsymbol{x,y}\in\boldsymbol{F(x,y)}} f(\boldsymbol{x,y})
+    \min\limits_{\boldsymbol{x}\in\boldsymbol{X}}\min\limits_{\boldsymbol{y}\in\boldsymbol{F(x)}} f(\boldsymbol{x,y})=\min\limits_{\boldsymbol{x,y}\in\boldsymbol{F(x,y)}} f(\boldsymbol{x,y}), \quad \boldsymbol{F(x,y)}=\{(\boldsymbol{x,y})|\boldsymbol{x}\in\boldsymbol{X},\boldsymbol{y}\in\boldsymbol{F(x)}\}
 \end{align}
 \begin{enumerate}
     \item 假设$(\boldsymbol{x^*,y^*})$为$LHS$的最优解, 同时$(\boldsymbol{x^*,y^*})$也是$RHS$的可行解, 则有:
@@ -525,13 +534,16 @@ $\boldsymbol{\hat{x}}$传入下层问题后可得如下形式的下层问题:
     LHS=RHS
 \end{align}
 
-
-
-
 \section{文章中的Benders分解存在的问题}
 文章中只有可行性恢复子问题, 保证了可行性, 但没有保证最优性。
 
 \section{对模型中\texorpdfstring{$E_B=N_B\cdot C_B$}.约束的处理}
 初步可以使用枚举的方法进行测试, 通过求解多个MILP问题实现, 即分别令$N_B=\underline{N}_B,\underline{N}_B+1,\cdots$, 求解对应的MILP问题, 并统计各个问题的目标函数值, 选取最优的目标函数值对应的$N_B$值作为最终的$N_B$值.
+
+\section{结论}
+\begin{enumerate}
+    \item {目前双层模型的本质是单层模型, 单层模型的最优解即为双层模型的最优解。}
+    \item {Benders分解适用于单层模型的问题, 且模型分解后的子问题中不应含有整数变量。}
+\end{enumerate}
 
 \end{document}
