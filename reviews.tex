@@ -574,6 +574,8 @@ $\boldsymbol{\hat{x}}$传入下层问题后可得如下形式的下层问题:
     \end{align}
 \end{enumerate}
 
+\clearpage
+\setcounter{section}{0}
 \section{新双层模型}
 \subsection{上层模型}
 \subsubsection{上层目标函数}
@@ -802,7 +804,6 @@ $\boldsymbol{\hat{x}}$传入下层问题后可得如下形式的下层问题:
 
 枚举后的上层约束条件也都为线性约束, 所得到的新的双层问题就是一个混合整数线性的双层规划问题, 上层问题不含整数变量, 下层问题含有0-1变量.
 
-\clearpage
 \subsection{调研结果}
 目前求解器可以求解的问题类型有:
 \begin{enumerate}
@@ -817,19 +818,22 @@ $\boldsymbol{\hat{x}}$传入下层问题后可得如下形式的下层问题:
     Ax+By&\leq b \\
     l\leq y& \leq u  \\
     x_j\text{ integer},&\forall j\in J_x\\
-    y_{j}\mathrm{integer},&\forall j\in J_{y} \\
+    y_{j}\text{ integer},&\forall j\in J_{y} \\
     d^{T}y&\leq\Phi(x)
 \end{align*}
 其中$\Phi(x)$为以下值函数:
 $$
 \Phi(x^*):=\min_{y\in\mathbb{R}^n2}\{d^Ty~:~By\leq b-Ax^*,\quad l\leq y\leq u,\quad y_j\mathrm{~integer~}\forall j\in J_y\}.
 $$
+去掉约束$d^Ty\leq\Phi(x)$得到High Point Relaxation(HPR).
+
 求解算法如下:
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{./pic/MIBLP_algo.png}
+    \includegraphics[width=0.9\textwidth]{./pic/MIBLP_algo.png}
     \label{fig:MIBLP}
 \end{figure}
-
+Here $J_F$ is the set of the leader x-variables appearing in the follower problem, all of 
+which are assumed to be integer constrained (we also exclude HPR unboundedness)
 
 \end{document}
