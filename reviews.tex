@@ -1,5 +1,5 @@
 \documentclass{article}
-\usepackage{amsmath,  amsthm,  amssymb,  bm,  graphicx, mathrsfs, ctex, caption, subfigure, multicol, multienum, color, float}
+\usepackage{amsmath,  amsthm,  amssymb,  bm,  graphicx, mathrsfs, ctex, caption, subfigure, multicol, multienum, color, float, booktabs}
 \usepackage[unicode=true,pdfusetitle,
    bookmarks=true, 
    bookmarksnumbered=false, 
@@ -12,6 +12,7 @@
 \usepackage{anyfontsize}
 \usepackage{xeCJK}
 \usepackage{geometry}
+\usepackage[ruled]{algorithm2e}
 \geometry{a4paper, scale=0.8}
 
 \newtheorem*{note}{注}
@@ -835,5 +836,129 @@ $$
 \end{figure}
 Here $J_F$ is the set of the leader x-variables appearing in the follower problem, all of 
 which are assumed to be integer constrained (we also exclude HPR unboundedness)
+
+\clearpage
+
+\section{双层模型求解}
+\subsection{值函数单层化模型}
+\begin{align*}
+    \operatorname*{min}_{x,y}c_{x}^{T}x+c_{y}^{T}y \\
+    G_{x}x+G_{y}y& \leq q  \\
+    Ax+By&\leq b \\
+    l\leq y& \leq u  \\
+    x_j\text{ integer},&\forall j\in J_x\\
+    y_{j}\text{ integer},&\forall j\in J_{y} \\
+    d^{T}y&\leq\Phi(x)
+\end{align*}
+其中$\Phi(x)$为值函数, 表示对于$x$的下层问题的最优值.:
+$$
+\Phi(x^*):=\min_{y\in\mathbb{R}^n2}\{d^Ty~:~By\leq b-Ax^*,\quad l\leq y\leq u,\quad y_j\mathrm{~integer~},\forall j\in J_y\}.
+$$
+去掉约束$d^Ty\leq\Phi(x)$得到High Point Relaxation(HPR).
+
+本模型中，值函数为给定$x$的下层问题的最优值$\sum\limits_{t} p_D$。
+
+\subsection{启发式求解算法}
+
+\begin{algorithm}[H]
+    \caption{基于分支定界框架的启发式算法}%算法名字
+    \LinesNumbered %要求显示行号
+    % \KwIn{input parameters A, B, C}%输入参数
+    % \KwOut{output result}%输出
+    % Apply a standard LP$-$based B$ \& $B to HPR, branching as customary on integer$-$constrained
+    % variables $x_j$ and $y_j$ that are fractional at the optimal LP solution\; %\;用于换行
+    \While{分支定界Gap未缩减到0}{
+        \If{当前节点的解整数可行}{
+            令$(x^*,y^*)$为HPR当前节点的整数可行解, 计算代表下层问题的值函数$\Phi(x^*)$\;
+            \If{$d^Ty^*\leq \Phi(x^*)$}{
+                向原模型中添加Lazy Constraint: $d^Ty\leq \Phi(x^*)$\;
+            }
+        }
+    }
+\end{algorithm}
+
+\clearpage
+\subsection{数值实验}
+计算环境: Intel(R) Core(TM) i5-8300H CPU @ 2.30GHz, 16GB内存, Windows 10操作系统, Julia v1.8, Gurobi v11.0.0rc2.
+
+ 1. HPR求解结果:
+\begin{table}[H]
+    \centering
+    \caption{HPR求解结果}
+    \label{tab:energy_system_data}
+    \begin{tabular}{c|c}
+        \toprule
+        \textbf{项目} & \textbf{数值} \\
+        \midrule
+        最大年净收益 & 8275680.530370675 \\
+        最大年综合收益 & 19437539.179158792 \\
+        风电场装机容量 & 20000.000000000065 \\
+        光伏电站装机容量 & 5061.820158530317 \\
+        储能电站装机容量 & 569.4938179841215 \\
+        储能电站电池容量 & 1138.987635968243 \\
+        光热电站装机容量 & 597.9752719365633 \\
+        光热电站储热装置容量 & 4244.072572119948 \\
+        \textcolor{red}{系统总供电缺额} & 475381.33616031846 \\
+        储能电站的储电时长 & 2 \\
+        \textcolor{red}{当前上层变量下最小系统总供电缺额} & 9169.316842041271 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\bf{此时的解双层不可行};
+    
+2.转化为多目标求解结果: \\
+权重设置: $w_{upper}=0.3, w_{lower}=0.7$
+
+\begin{table}[H]
+    \centering
+    \caption{多目标求解结果}
+    \label{tab:multi_objective_result}
+    \begin{tabular}{c|c}
+        \toprule
+        \textbf{项目} & \textbf{数值} \\
+        \midrule
+        最大年净收益 & 8268960.292472437 \\
+        最大年综合收益 & 1963899.1838663977 \\
+        风电场装机容量 & 20000.000000000065 \\
+        光伏电站装机容量 & 5428.5714285714475 \\
+        储能电站装机容量 & 1102.4857142856845 \\
+        储能电站电池容量 & 2204.971428571369 \\
+        光热电站装机容量 & 599.9999999999754 \\
+        光热电站储热装置容量 & 4257.867041088259 \\
+        \textcolor{red}{系统总供电缺额} & 7027.18553142881 \\
+        储能电站的储电时长 & 2 \\
+        \textcolor{red}{当前上层变量下最小系统总供电缺额} & 6902.825142857383 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\bf{此时的解双层不可行};
+
+3. 启发式算法求解结果:
+\begin{table}[H]
+    \centering
+    \caption{启发式算法求解结果}
+    \label{tab:heuristic_result}
+    \begin{tabular}{c|c}
+        \toprule
+        \textbf{项目} & \textbf{数值} \\
+        \midrule
+        最大年净收益 & 8262807.850814322 \\
+        最大年综合收益 & 9888750.064811833 \\
+        风电场装机容量 & 20000.000000000065 \\
+        光伏电站装机容量 & 5536.663780167239 \\
+        储能电站装机容量 & 1405.3114728623755 \\
+        储能电站电池容量 & 2810.622945724751 \\
+        光热电站装机容量 & 678.1166513080196 \\
+        光热电站储热装置容量 & 4790.075658062324 \\
+        \textcolor{red}{系统总供电缺额} & 5154.625312116199 \\
+        储能电站的储电时长 & 2 \\
+        \textcolor{red}{当前上层变量下最小系统总供电缺额} & 5154.625312116199 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\bf{此时的解为双层可行解}.
 
 \end{document}
