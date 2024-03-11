@@ -641,7 +641,7 @@ $\boldsymbol{\hat{x}}$传入下层问题后可得如下形式的下层问题:
     \item {无故障时外送通道容量约束:
         \begin{gather}
             p_L(t)=p_W(t)+p_V(t)+p_B(t)+p_S(t),\forall t\in\Theta\\
-            p_L(t)+p_D(t)\geq p_{LM}(t),\forall t\in\Theta\\
+            p_{HM}(t)\geq p_L(t)+p_D(t)\geq p_{LM}(t),\forall t\in\Theta\\
             p_D(t)\geq0,\forall t\in\Theta
         \end{gather}
         式中, $\Theta$表示所有时段集合, $p_{LM}(t)$表示送出功率下限，为给定曲线.
@@ -699,11 +699,19 @@ $\boldsymbol{\hat{x}}$传入下层问题后可得如下形式的下层问题:
             \item {集热器热量平衡约束:
                 \begin{align}
                     h_{s}^{in}(t)=h_{s}^{cr}(t)+h_{s}^{ch}(t),\forall t
+                    h^{in}_{s} = C_s \eta_m \eta_S \delta_S^{in}(t), \forall t
                 \end{align}
             }
             \item {储热/放热功率范围约束:
                 \begin{align}
-                    \begin{cases}0\le h_S^{ch}(t)\le\bar{h}_S^{ch}\\0\le h_S^{dc}(t)\le\bar{h}_S^{dc}\end{cases},\forall t
+                    \begin{cases}
+                        0\le h_S^{ch}(t)\le\bar{h}_S^{ch}\\
+                        0\le h_S^{dc}(t)\le\bar{h}_S^{dc}
+                    \end{cases},\forall t
+                    \begin{cases}
+                        \bar{h}_S^{ch}=C_B\eta_m \eta_S\\
+                        \bar{h}_S^{dc}=C_B\eta_m \eta_S
+                    \end{cases},\forall t
                 \end{align}
             }
             \item {热-电功率转化约束:
@@ -725,7 +733,7 @@ $\boldsymbol{\hat{x}}$传入下层问题后可得如下形式的下层问题:
             }
             \item {发电热量平衡约束:
                 \begin{align}
-                    h_S^{dc}(t)=h_S(t)+v_S(t)\cdot h_S^g,\forall t
+                    h_S^{dc}(t)=h_S(t)\cdot h_S^g,\forall t
                 \end{align}
             }
             \item {运行状态逻辑约束:
@@ -741,11 +749,6 @@ $\boldsymbol{\hat{x}}$传入下层问题后可得如下形式的下层问题:
             \item {储热装置热量平衡约束:
                 \begin{align}
                     e_S(t+1)=e_S(t)+\gamma_S^{ch}h_S^{ch}(t)-h_S^{dc}(t)/\gamma_S^{dc}-h_S^{l}(t),\forall t
-                \end{align}
-            }
-            \item {储热装置外送能力范围约束:
-                \begin{align}
-                    0\leq h_S^l(t)\leq\bar{h}_S^l,\forall t
                 \end{align}
             }
         \end{enumerate}
