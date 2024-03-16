@@ -882,6 +882,7 @@ $$
 
 \clearpage
 \subsection{数值实验}
+\subsubsection{直接求解HPR、转化为多目标求解、启发式算法求解结果对比}
 计算环境: Intel(R) Core(TM) i5-8300H CPU @ 2.30GHz, 16GB内存, Windows 10操作系统, Julia v1.8, Gurobi v11.0.0rc2.
 
  1. HPR求解结果:
@@ -963,5 +964,118 @@ $$
 \end{table}
 
 \bf{此时的解为双层可行解}.
+
+\subsubsection{测试储能电站的储电时长对结果的影响}
+\begin{table}[H]
+    \centering
+    \caption{不同储能电站的储电时长下的求解结果}
+    \label{tab:energy_system_data_2_6}
+    \begin{tabular}{c|c}
+        \toprule
+        \textbf{储能电站的储电时长} & \textbf{系统年净收益} \\
+        \midrule
+        2 & 8262807.850814322 \\
+        3 & 8261234.681976344 \\
+        4 & 8275368.901648423 \\
+        5 & 8274470.029481219 \\
+        6 & 8266160.868399443 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+当储电时长为4时, 系统年净收益最大.
+
+以下为不同储电时长下的求解结果：
+\begin{table}[H]
+    \centering
+    \caption{储能时长为3时的求解结果}
+    \label{tab:energy_system_data_3}
+    \begin{tabular}{c|c}
+        \toprule
+        \textbf{项目} & \textbf{数值} \\
+        \midrule
+        最大年净收益 & 8261234.681976344 \\
+        最大年综合收益 & 20207625.51764706 \\
+        风电场装机容量 & 20000.000000000065 \\
+        光伏电站装机容量 & 6385.745482988444 \\
+        储能电站装机容量 & 1967.736747751651 \\
+        储能电站电池容量 & 5903.210243254953 \\
+        光热电站装机容量 & 599.9999999999745 \\
+        光热电站储热装置容量 & 4257.8670410882505 \\
+        \textcolor{red}{系统总供电缺额} & \textcolor{red}{1241.2543588255176} \\
+        储能电站的储电时长 & 3 \\
+        \textcolor{red}{当前上层变量下最小系统总供电缺额} & \textcolor{red}{1241.254358825517} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \caption{储能时长为4时的求解结果}
+    \label{tab:energy_system_data_4}
+    \begin{tabular}{c|c}
+        \toprule
+        \textbf{项目} & \textbf{数值} \\
+        \midrule
+        最大年净收益 & 8275368.901648423 \\
+        最大年综合收益 & 20142366.270903185 \\
+        风电场装机容量 & 20000.000000000065 \\
+        光伏电站装机容量 & 6211.180124223623 \\
+        储能电站装机容量 & 1464.4178775533794 \\
+        储能电站电池容量 & 5857.671510213518 \\
+        光热电站装机容量 & 597.515527950286 \\
+        光热电站储热装置容量 & 4240.940337097048 \\
+        \textcolor{red}{系统总供电缺额} & \textcolor{red}{1758.2991623709777} \\
+        储能电站的储电时长 & 4 \\
+        \textcolor{red}{当前上层变量下最小系统总供电缺额} & \textcolor{red}{1758.2991623709777} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \caption{储能时长为5时的求解结果}
+    \label{tab:energy_system_data_5}
+    \begin{tabular}{c|c}
+        \toprule
+        \textbf{项目} & \textbf{数值} \\
+        \midrule
+        最大年净收益 & 8274470.029481219 \\
+        最大年综合收益 & 19912884.08130279 \\
+        风电场装机容量 & 20000.000000000065 \\
+        光伏电站装机容量 & 6250.000000000001 \\
+        储能电站装机容量 & 1142.2275344219213 \\
+        储能电站电池容量 & 5711.137672109607 \\
+        光热电站装机容量 & 497.2275344219147 \\
+        光热电站储热装置容量 & 3557.6784020153214 \\
+        \textcolor{red}{系统总供电缺额} & \textcolor{red}{3748.974655780794} \\
+        储能电站的储电时长 & 5 \\
+        \textcolor{red}{当前上层变量下最小系统总供电缺额} & \textcolor{red}{3748.974655780821} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \caption{储能时长为6时的求解结果}
+    \label{tab:energy_system_data_6}
+    \begin{tabular}{c|c}
+        \toprule
+        \textbf{项目} & \textbf{数值} \\
+        \midrule
+        最大年净收益 & 8266160.868399443 \\
+        最大年综合收益 & 1969987.8915809587 \\
+        风电场装机容量 & 20000.000000000065 \\
+        光伏电站装机容量 & 5429.300407576924 \\
+        储能电站装机容量 & 569.4897146961521 \\
+        储能电站电池容量 & 3416.9382881769125 \\
+        光热电站装机容量 & 599.4897146961421 \\
+        光热电站储热装置容量 & 4254.390468151914 \\
+        \textcolor{red}{系统总供电缺额} & \textcolor{red}{7064.892177614747} \\
+        储能电站的储电时长 & 6 \\
+        \textcolor{red}{当前上层变量下最小系统总供电缺额} & \textcolor{red}{7064.892177614779} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
 \end{document}
