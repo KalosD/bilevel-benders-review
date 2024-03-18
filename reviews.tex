@@ -875,17 +875,17 @@ $$
     % \KwOut{output result}%输出
     % Apply a standard LP$-$based B$ \& $B to HPR, branching as customary on integer$-$constrained
     % variables $x_j$ and $y_j$ that are fractional at the optimal LP solution\; %\;用于换行
-    初始化当前最优解为0\;
-    \While{分支定界Gap未缩减到0}{
+    初始化当前双层最优解为0\;
+    \While{求解HPR问题的分支定界Gap未缩减到0}{
         \If{当前节点的解整数可行}{
             令$(x^*,y^*)$为当前节点HPR问题的整数可行解, 计算代表下层问题的值函数$\Phi(x^*)$\;
             \If{$d^Ty^*\leq \Phi(x^*)$}{
                 向当前节点HPR问题中添加约束: $d^Ty\leq \Phi(x^*)$得到当前节点的受限HPR问题, 并求解受限HPR问题(固定上层变量, 并添加约束后的HPR问题)\;
-                \If{受限HPR问题的最优解优于当前最优解}{
-                    更新当前最优解\;
+                \If{受限HPR问题的最优解优于当前双层最优解}{
+                    更新当前双层最优解\;
                 }
             }\Else{
-                可能更新当前最优解\;
+                可能更新当前双层最优解\;
             }
         }
     }
